@@ -54,6 +54,7 @@ class BaseParser(ABC):
                     name=s.get("name", ""),
                     proficiency=s.get("proficiency"),
                     category=s.get("category"),
+                    parent=s.get("parent"),
                 )
                 for s in data["required_skills"]
                 if s.get("name")
@@ -66,6 +67,7 @@ class BaseParser(ABC):
                     name=s.get("name", ""),
                     proficiency=s.get("proficiency"),
                     category=s.get("category"),
+                    parent=s.get("parent"),
                 )
                 for s in data["preferred_skills"]
                 if s.get("name")

@@ -22,11 +22,11 @@ SYSTEM_PROMPT = """\
   "job_category": "职位所属大类（如 后端开发、前端开发、数据分析、AI/机器学习、运维、测试、产品、设计 等）",
   "responsibilities": ["职责1", "职责2", ...],
   "required_skills": [
-    {"name": "技能名称（归一化英文/中文通用名）", "proficiency": "熟练度（了解/熟悉/熟练/精通/不限）", "category": "技能分类"},
+    {"name": "技能名称", "proficiency": "熟练度", "category": "技能分类", "parent": "父技能名称或null"},
     ...
   ],
   "preferred_skills": [
-    {"name": "技能名称", "proficiency": "熟练度", "category": "技能分类"},
+    {"name": "技能名称", "proficiency": "熟练度", "category": "技能分类", "parent": "父技能名称或null"},
     ...
   ]
 }
@@ -38,6 +38,24 @@ SYSTEM_PROMPT = """\
 4. category 取值范围：编程语言 / 前端框架 / 后端框架 / 数据库 / 缓存 / 消息队列 / 云平台 / DevOps工具 / AI工具 / 机器学习 / 深度学习 / 数据处理 / 操作系统 / 网络 / 测试工具 / 项目管理 / 通用技能 / 软技能 / 其他
 5. 软技能也要提取，如"沟通能力""团队协作""学习能力"等，category 为"软技能"
 6. 加分项里的技能放到 preferred_skills
+7. 层级技能识别（parent 字段）：
+   - 当一个技能明显是某个更大技术/平台/生态的子组件、子工具、子模块或特定功能时，必须通过 parent 字段标注其父技能
+   - 父技能也必须作为独立条目出现在技能列表中（即使原文没有单独提及父技能）
+   - 如果一个技能没有父级关系，parent 设为 null
+   - 常见的层级关系示例：
+     * Docker → Docker Compose, Docker Swarm, Docker Registry, Dockerfile
+     * Kubernetes → Helm, kubectl, KubeFlow
+     * Spring → Spring Boot, Spring Cloud, Spring MVC, Spring Security
+     * React → React Router, React Native, Redux, Next.js
+     * Vue.js → Vue Router, Vuex, Pinia, Nuxt.js
+     * AWS → EC2, S3, Lambda, DynamoDB, SageMaker
+     * Node.js → Express.js, Koa.js, NestJS
+     * Python → Django, Flask, FastAPI
+     * Apache Spark → Spark SQL, Spark Streaming, PySpark
+     * Elasticsearch → Kibana, Logstash (ELK Stack)
+   - 判断原则：子技能离开父技能后无法独立定义其上下文（如 "Helm" 离开 "Kubernetes" 就失去语境）
+   - 编程语言与其框架之间不视为 parent 关系（如 Java 和 Spring Boot 不构成 parent 关系），因为框架是独立的生态
+   - 但框架内部的子模块/组件需标注 parent（如 Spring Boot 是 Spring 的子模块）
 """
 
 # ── DeepSeek API 配置 ──
@@ -57,9 +75,9 @@ LANGBASE_APP_ID = "626ea359-380d-4e9e-b263-d05c1922dee8"
 
 # ── Langbase 请求配置 ──
 LANGBASE_MAX_RETRIES = 3
-LANGBASE_RETRY_DELAY = 2  # 秒
+LANGBASE_RETRY_DELAY = 5  # 秒
 LANGBASE_TIMEOUT = 60  # 请求超时时间（秒）
-LANGBASE_REQUEST_INTERVAL = 0.5  # 请求间隔（秒），避免触发速率限制
-LANGBASE_POLL_INTERVAL = 3  # 轮询间隔（秒）
+LANGBASE_REQUEST_INTERVAL = 1  # 请求间隔（秒），避免触发速率限制
+LANGBASE_POLL_INTERVAL = 5  # 轮询间隔（秒）
 LANGBASE_POLL_MAX_ATTEMPTS = 60  # 最大轮询次数（3秒×60次=最多等3分钟）
 LANGBASE_BATCH_SIZE = 10  # 每批并发触发的任务数
